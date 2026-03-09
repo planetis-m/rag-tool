@@ -115,7 +115,6 @@ Rules:
 
 ## Store Execution
 
-- Write the ingest input to an agent-managed temporary file when needed.
 - Always use the internal database.
 - Derive stable `doc` ids and pass them via `cvstore --doc=...`.
 - Pass `--kind=source` or `--kind=derived` on `cvstore`.
