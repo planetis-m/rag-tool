@@ -1,4 +1,4 @@
 interface:
   display_name: "Doc Assistant"
-  short_description: "Store and search chunkvec documents with a fixed workspace DB"
-  default_prompt: "Use $doc-assistant in store or search mode with the default workspace database, chunk and label content for chunkvec, and infer cvquery filters from natural-language intent when the cues are clear."
+  short_description: "Store and search chunkvec documents with stable doc ids"
+  default_prompt: "Use $doc-assistant in store or search mode, keep the internal database hidden, generate stable typed-suffix doc ids, and infer cvquery filters from natural-language intent when the cues are clear."

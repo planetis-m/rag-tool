@@ -7,14 +7,14 @@ description: Prepare, chunk, label, store, and query source and derived document
 
 Follow this workflow exactly to prepare document content for `chunkvec`.
 
-## Default Paths
+## Internal Paths
 
-Unless the user explicitly asks for a different database path, use this fixed
-workspace-local database:
+Use this fixed internal workspace-local database:
 
 - `./.doc-assistant/chunkvec.sqlite`
 
-Keep this path stable across executions in the same workspace.
+This path never changes during normal skill use and should not be presented as
+a user-facing choice.
 
 For agent-managed temporary input files:
 
@@ -74,6 +74,33 @@ Use `search` for requests such as:
 - find what the source says about dropout
 - query the stored material for regularization
 
+## Stable Doc IDs
+
+`doc` ids must be deterministic across store and search runs.
+
+Derive a lowercase kebab-case `base` from one stable source identity:
+
+- prefer the source file stem, such as `chapter1.md` -> `chapter1`
+- otherwise use an explicit logical title supplied by the user
+- do not invent a fresh one-off base when stable retrieval later may matter
+
+Then apply exactly one typed suffix:
+
+- source, original, transcript -> `-source`
+- notes, summary, study-notes, lecture, eli5 -> `-notes`
+- quiz -> `-quiz`
+- flashcards -> `-flashcards`
+- essay -> `-essay`
+
+Examples:
+
+- `chapter1-source`
+- `chapter1-notes`
+- `chapter1-quiz`
+
+If the user provides pasted text with no stable file or title and later
+doc-specific retrieval may matter, ask for a short logical name before storing.
+
 ## Chunking
 
 The chunking policy must align with the embedding model used by `cvstore`, which defaults to `Qwen/Qwen3-Embedding-0.6B`.
@@ -120,8 +147,8 @@ Every stored chunk must carry exactly these fields:
 
 Apply these rules:
 
-- Use lowercase kebab-case for `doc`, such as `ml-unit-3`, `ml-unit-3-notes`, or `calc-book-ch-4`.
-- Use a separate `doc` id for each stored artifact, such as a source chapter, lecture rewrite, notes file, or quiz bundle.
+- Use the stable typed-suffix scheme from `Stable Doc IDs`.
+- Use a separate `doc` id for each stored artifact type derived from the same base.
 - Use `kind=source` for original material or faithful transcription.
 - Use `kind=derived` for generated or rewritten material, including notes, lectures, quizzes, flashcards, essays, and summaries.
 - `position` is required even when the source has no native numbering. In that case, assign sequential positions.
@@ -136,7 +163,7 @@ Write the material as repeated `<chunk ...>` markers plus non-empty chunk bodies
 Example:
 
 ```text
-<chunk doc="ml-unit-3" kind=source position=12 label="Regularization">
+<chunk doc="ml-unit-3-source" kind=source position=12 label="Regularization">
 Dropout disables random activations during training.
 
 <chunk doc="ml-unit-3-notes" kind=derived position=12 label="Regularization">
@@ -155,7 +182,8 @@ Rules:
 In `store` mode:
 
 - write the ingest input to an agent-managed file under `./.doc-assistant/`
-- use `./.doc-assistant/chunkvec.sqlite` unless the user explicitly overrides the database path
+- always use the internal database at `./.doc-assistant/chunkvec.sqlite`
+- derive `doc` ids with the stable typed-suffix scheme before writing chunks
 - run `cvstore` against that database path
 
 Run ingest with:
@@ -188,7 +216,7 @@ is clear.
 
 Infer these filters:
 
-- `doc` only from an exact known document id or an explicitly named stored artifact
+- `doc` only when the stable base artifact and artifact type are both clear, using the same typed-suffix scheme as store mode
 - `kind=source` from cues like `source`, `original`, or `transcript`
 - `kind=derived` from cues like `derived`, `notes`, `summary`, `quiz`, or `flashcards`
 - `position` only from explicit chunk-position references that clearly map to the stored numbering scheme
@@ -198,6 +226,7 @@ Do not infer filters when the cue is ambiguous.
 
 - Do not treat generic page references as `position` unless the stored material uses pages as positions.
 - Do not invent a `doc` filter from a loose description.
+- Do not invent a new base name during search.
 - If confidence is low, leave the text as a plain semantic query instead of guessing.
 
 If no high-confidence filters are present, write only the semantic query text.
@@ -205,7 +234,7 @@ If no high-confidence filters are present, write only the semantic query text.
 In `search` mode:
 
 - write the query input to an agent-managed file under `./.doc-assistant/`
-- use `./.doc-assistant/chunkvec.sqlite` unless the user explicitly overrides the database path
+- always use the internal database at `./.doc-assistant/chunkvec.sqlite`
 - run `cvquery` against that database path
 
 Use only the filters the user actually needs.
