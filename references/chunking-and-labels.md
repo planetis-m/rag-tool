@@ -105,10 +105,10 @@ Expected query file:
 How do embeddings help search?
 ```
 
-## Example: infer kind and label from natural language
+## Example: explicit filtered search
 
 ```text
-Use $doc-assistant in search mode for my chapter1 notes about regularization.
+Use $doc-assistant in search mode and search only in my chapter1 notes for regularization.
 ```
 
 Expected query file:
@@ -116,13 +116,13 @@ Expected query file:
 ```text
 <search doc="chapter1-notes" kind=derived label="Regularization">
 
-my chapter1 notes about regularization
+search only in my chapter1 notes for regularization
 ```
 
-## Example: infer source plus topic
+## Example: explicit source-scoped search
 
 ```text
-Use $doc-assistant in search mode for the chapter1 source on vector search.
+Use $doc-assistant in search mode and search within the chapter1 source for vector search.
 ```
 
 Expected query file:
@@ -130,8 +130,19 @@ Expected query file:
 ```text
 <search doc="chapter1-source" kind=source label="Vector Search">
 
-the chapter1 source on vector search
+search within the chapter1 source for vector search
 ```
+
+## Example: topic mention without explicit filtering stays semantic
+
+```text
+Use $doc-assistant in search mode for my chapter1 notes about regularization.
+```
+
+Expected behavior:
+
+- do not emit a `<search ...>` header
+- keep the request as semantic query text because the user did not explicitly ask to filter
 
 ## Example: ambiguous cue should stay semantic
 

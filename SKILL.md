@@ -212,24 +212,40 @@ Query filter behavior:
 - `label` is normalized substring match
 
 In `search` mode, infer filters from natural-language intent only when the cue
-is clear.
+is an explicit request to narrow scope.
+
+Semantic search is the default.
+
+Treat these as explicit filtering requests:
+
+- `only`
+- `just`
+- `restrict`
+- `limit`
+- `filter`
+- `within`
+- `search in`
+- `search only in`
+- `from the source`
+- `from my notes`
 
 Infer these filters:
 
-- `doc` only when the stable base artifact and artifact type are both clear, using the same typed-suffix scheme as store mode
+- `doc` only when the user explicitly requests filtering and the stable base artifact and artifact type are both clear, using the same typed-suffix scheme as store mode
 - `kind=source` from cues like `source`, `original`, or `transcript`
 - `kind=derived` from cues like `derived`, `notes`, `summary`, `quiz`, or `flashcards`
 - `position` only from explicit chunk-position references that clearly map to the stored numbering scheme
-- `label` from stable topic phrases such as `Regularization`, `Vector Search`, or `Chain Rule`
+- `label` only when the user explicitly filters by topic or scoped subject, using stable topic phrases such as `Regularization`, `Vector Search`, or `Chain Rule`
 
 Do not infer filters when the cue is ambiguous.
 
 - Do not treat generic page references as `position` unless the stored material uses pages as positions.
 - Do not invent a `doc` filter from a loose description.
 - Do not invent a new base name during search.
+- Do not convert topic wording alone into a filter unless the user explicitly asks to constrain the search.
 - If confidence is low, leave the text as a plain semantic query instead of guessing.
 
-If no high-confidence filters are present, write only the semantic query text.
+If the user does not explicitly request filtering, write only the semantic query text.
 
 In `search` mode:
 

@@ -7,8 +7,8 @@
 
 It provides two modes:
 - `store`: chunk text, assign stable topic labels, and store it with `cvstore`
-- `search`: search the stored database with `cvquery`, inferring filters from
-  natural-language intent when the cue is clear
+- `search`: search the stored database with `cvquery`, using filters only when
+  the user explicitly asks to narrow scope
 
 This skill is designed for source material that needs to be stored and searched
 through `chunkvec` while preserving document ids, source/derived kind,
@@ -69,16 +69,20 @@ Use $doc-assistant in search mode for: how do embeddings help search?
 ```
 
 ```text
-Use $doc-assistant in search mode for my chapter1 notes about regularization.
+Use $doc-assistant in search mode and search only in my chapter1 notes for regularization.
 ```
 
 ```text
-Use $doc-assistant in search mode for the chapter1 source on vector search.
+Use $doc-assistant in search mode and search within the chapter1 source for vector search.
 ```
 
-The skill should infer filters only when the intent is clear. For example,
-`chapter1 notes about regularization` should map naturally to the stable
-`doc="chapter1-notes"` id plus a `label` filter for `Regularization`.
+Semantic search is the default. The skill should translate filters only when
+the user explicitly asks to limit scope with wording such as `only`, `within`,
+`restrict`, `filter`, or `search in`.
+
+For example, `search only in my chapter1 notes for regularization` should map
+to the stable `doc="chapter1-notes"` id plus `kind=derived`, and may add a
+topic filter because the scope request is explicit.
 
 ## Stable Doc IDs
 
