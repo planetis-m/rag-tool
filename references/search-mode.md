@@ -79,5 +79,6 @@ If the user does not explicitly request filtering, pass only the raw semantic qu
 - Do not mechanically echo the top `k` results.
 - Use the retrieved chunks to judge which results actually answer the user's question.
 - Prefer chunks that directly answer the query over nearby but broader topic matches.
+- Do not mention the source material in the answer. Present the content directly.
 - Do not mention raw metadata; mention only `doc` when needed to identify the document.
 - If the retrieved chunks do not support a reliable answer, say so instead of inventing one.
