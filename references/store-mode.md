@@ -69,7 +69,7 @@ Global ingest metadata, passed once on `cvstore`:
 
 Per-chunk metadata, written inside each `<chunk ...>` marker:
 
-- `pos`: integer locator within that `doc`
+- `pos`: integer source locator within that `doc`, such as a page or slide number
 - `label`: optional short topic string
 
 Also provide `cvstore --source=RELATIVEPATH` on ingest so stored rows keep a useful provenance identity when that provenance is known.
@@ -79,8 +79,9 @@ Apply these rules:
 - Derive `doc` from the stable document identity, such as `chapter1`.
 - Use `--kind=source` for original material or faithful transcription.
 - Use `--kind=derived` for generated or rewritten material, including notes, lectures, quizzes, flashcards, essays, and summaries.
-- `pos` is required in every chunk marker even when the source has no native numbering. In that case, assign sequential positions.
+- `pos` should follow the source's own numbering when available, such as page or slide numbers.
 - Multiple chunks may share the same `pos`. `chunkvec` keeps chunk order separately through `ordinal`.
+- If the source has no native numbering at all, use sequential positions only as a fallback.
 - `label` is optional.
 - For quizzes, keep the question and its answer in the same chunk so retrieval returns a complete item without extra linking metadata.
 - One ingest file must represent exactly one logical artifact, so `doc` and `kind` stay fixed for the whole run.
@@ -97,7 +98,7 @@ Example:
 <chunk pos=12 label="Regularization">
 Dropout disables random activations during training.
 
-<chunk pos=13>
+<chunk pos=12>
 Regularization reduces overfitting by constraining model behavior.
 ```
 
