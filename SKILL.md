@@ -7,6 +7,8 @@ description: Prepare text or markdown documents for semantic storage and retriev
 
 Follow this workflow exactly to prepare document content for storage and retrieval.
 
+Do not add verification steps unless the user explicitly asks for them.
+
 ## Internal Paths
 
 Use this fixed internal workspace-local database:
@@ -14,7 +16,6 @@ Use this fixed internal workspace-local database:
 - `./.doc-assistant/docs.db`
 
 This path is fixed. Do not vary it during normal skill use.
-Do not inspect the database directly unless the user explicitly asks.
 
 ## Resolve Input
 
