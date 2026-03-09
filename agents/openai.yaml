@@ -1,4 +1,4 @@
 interface:
   display_name: "Doc Assistant"
-  short_description: "Prepare ingest and query documents"
-  default_prompt: "Use $doc-assistant to prepare this material for marked-up ingest or filtered search with concrete document ids plus doc, kind, position, and label metadata."
+  short_description: "Chunk, label, store, and query chunkvec documents"
+  default_prompt: "Use $doc-assistant to chunk this material into semantically coherent chunkvec input with stable topic labels, then prepare or run cvstore and cvquery as needed."
