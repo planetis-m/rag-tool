@@ -46,7 +46,7 @@ git clone https://github.com/planetis-m/doc-assistant.git ~/.agents/skills/doc-a
 
 ### Store
 Use `store` when the user wants to add material to the internal workspace
-database.
+database. One store run creates one logical artifact.
 
 ```text
 Use $doc-assistant in store mode on notes.md.
@@ -58,6 +58,26 @@ Use $doc-assistant to store chapter1.md.
 
 ```text
 Use $doc-assistant to store derived notes for chapter1.md.
+```
+
+Store mode writes sparse chunk markers and passes shared metadata globally on
+`cvstore`. Chunks carry `pos` and optional `label`; `doc` and `kind` are
+not repeated in every marker.
+
+Example shape:
+
+```text
+<chunk pos=1 label="Intro">
+Embeddings map text into vectors where similar meanings stay close.
+
+<chunk pos=2>
+Nearest-neighbor search compares a query vector with stored vectors.
+```
+
+Example command shape:
+
+```text
+cvstore --doc=chapter1-source --kind=source INPUT.txt ./.doc-assistant/chunkvec.sqlite
 ```
 
 ### Search
@@ -82,7 +102,8 @@ the user explicitly asks to limit scope with wording such as `only`, `within`,
 
 For example, `search only in my chapter1 notes for regularization` should map
 to the stable `doc="chapter1-notes"` id plus `kind=derived`, and may add a
-topic filter because the scope request is explicit.
+topic filter because the scope request is explicit. `cvquery` now takes one raw
+query string positional argument, not a query file.
 
 ## Stable Doc IDs
 
@@ -100,3 +121,6 @@ Examples:
 - `chapter1.md` stored as source -> `chapter1-source`
 - derived notes for `chapter1.md` -> `chapter1-notes`
 - quiz from `chapter1.md` -> `chapter1-quiz`
+
+If the user wants multiple artifact types, the skill should create separate
+ingest files and separate `cvstore` runs rather than mixing types in one file.

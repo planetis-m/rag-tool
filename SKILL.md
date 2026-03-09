@@ -1,6 +1,6 @@
 ---
 name: doc-assistant
-description: Prepare, chunk, label, store, and query source and derived documents for `chunkvec` using concrete document ids plus the `doc`/`kind`/`position`/`label` metadata contract. Use when a task involves turning text or markdown into semantically coherent chunked ingest input or filtered query input for `cvstore` and `cvquery`.
+description: Prepare, chunk, label, store, and query source and derived documents for `chunkvec` using sparse `<chunk pos=...>` markers plus global `cvstore` metadata and `cvquery` CLI filters. Use when a task involves turning text or markdown into semantically coherent ingest input or explicit-filter search commands for `cvstore` and `cvquery`.
 ---
 
 # Doc Assistant
@@ -52,8 +52,8 @@ Always prepare the text yourself before running `cvstore` or `cvquery`.
 
 ### Usage
 
-- `cvstore INPUT.txt DB.sqlite`
-- `cvquery QUERY.txt DB.sqlite`
+- `cvstore --doc=DOC --kind=source|derived [--source=RELATIVEPATH] INPUT.txt DB.sqlite`
+- `cvquery [--doc=DOC] [--kind=source|derived] [--position=N] [--label=TEXT] QUERY DB.sqlite`
 
 ## Mode Selection
 
@@ -123,7 +123,7 @@ Use conservative chunk sizes:
 
 ## Topic Labels
 
-Every skill-generated chunk should have a non-empty `label`.
+Use `label` when it improves retrieval grouping. It is optional, not required.
 
 - Use short human-readable topic phrases, preferably `2-5` words.
 - Use stable Title Case noun phrases such as `Vector Search`, `Regularization`, or `Chain Rule`.
@@ -133,28 +133,40 @@ Every skill-generated chunk should have a non-empty `label`.
 - Avoid labels that are too narrow, such as sentence-level paraphrases.
 - Avoid label drift across similar content. Do not alternate between near-synonyms for the same topic.
 - Keep labels descriptive but not overly specific.
+- Omit `label` when a chunk is still clear and useful without it.
 
 If the source needs more examples for chunking or label reuse, read [references/chunking-and-labels.md](references/chunking-and-labels.md).
 
 ## Choose Metadata
 
-Every stored chunk must carry exactly these fields:
+Split ingest metadata into two levels.
+
+Global ingest metadata, passed once on `cvstore`:
 
 - `doc`: stable logical document id for one stored artifact
 - `kind`: one of `source`, `derived`
-- `position`: integer locator within that `doc`
-- `label`: short topic string
+- `source`: optional provenance path passed via `--source`
+
+Per-chunk metadata, written inside each `<chunk ...>` marker:
+
+- `pos`: integer locator within that `doc`
+- `label`: optional short topic string
+
+Also provide `cvstore --source=RELATIVEPATH` on ingest so stored rows keep a
+useful provenance path instead of the temporary `.doc-assistant/...-ingest.txt`
+file when that provenance is known.
 
 Apply these rules:
 
-- Use the stable typed-suffix scheme from `Stable Doc IDs`.
-- Use a separate `doc` id for each stored artifact type derived from the same base.
-- Use `kind=source` for original material or faithful transcription.
-- Use `kind=derived` for generated or rewritten material, including notes, lectures, quizzes, flashcards, essays, and summaries.
-- `position` is required even when the source has no native numbering. In that case, assign sequential positions.
-- Multiple chunks may share the same `position`. `chunkvec` keeps chunk order separately through `ordinal`.
-- `label` is required for skill-generated output even though `chunkvec` accepts unlabeled chunks.
+- Use the stable typed-suffix scheme from `Stable Doc IDs` for `cvstore --doc=...`.
+- Use `--kind=source` for original material or faithful transcription.
+- Use `--kind=derived` for generated or rewritten material, including notes, lectures, quizzes, flashcards, essays, and summaries.
+- `pos` is required in every chunk marker even when the source has no native numbering. In that case, assign sequential positions.
+- Multiple chunks may share the same `pos`. `chunkvec` keeps chunk order separately through `ordinal`.
+- `label` is optional.
 - For quizzes, keep the question and its answer in the same chunk so retrieval returns a complete item without extra linking metadata.
+- One ingest file must represent exactly one logical artifact, so `doc` and `kind` stay fixed for the whole run.
+- If the user wants multiple artifact types, produce separate ingest files and separate `cvstore` runs.
 
 ## Produce Ingest Input
 
@@ -163,48 +175,58 @@ Write the material as repeated `<chunk ...>` markers plus non-empty chunk bodies
 Example:
 
 ```text
-<chunk doc="ml-unit-3-source" kind=source position=12 label="Regularization">
+<chunk pos=12 label="Regularization">
 Dropout disables random activations during training.
 
-<chunk doc="ml-unit-3-notes" kind=derived position=12 label="Regularization">
+<chunk pos=13>
 Regularization reduces overfitting by constraining model behavior.
 ```
 
 Rules:
 
 - Do not emit legacy `<page ...>` markers.
-- Keep only the 4 supported metadata fields. Do not invent extra attributes.
+- Keep only the supported chunk-level metadata fields. Do not invent extra attributes.
+- Do not write `doc` or `kind` inside chunk markers.
+- Do not write legacy `position=` inside chunk markers.
 - Trim decorative boilerplate that hurts retrieval quality.
 - Keep chunk bodies non-empty and semantically coherent.
 - Prefer chunks that stand on their own during retrieval.
-- Ensure every generated chunk includes a `label`.
+- `label` is optional, not required.
 
 In `store` mode:
 
 - write the ingest input to an agent-managed file under `./.doc-assistant/`
 - always use the internal database at `./.doc-assistant/chunkvec.sqlite`
-- derive `doc` ids with the stable typed-suffix scheme before writing chunks
+- derive `doc` ids with the stable typed-suffix scheme and pass them via `cvstore --doc=...`
+- pass `--kind=source` or `--kind=derived` on `cvstore`
+- pass `--source` when a meaningful provenance path is known
 - run `cvstore` against that database path
+- never mix multiple `doc` or `kind` values in one ingest file
+
+When providing `--source`, choose it with these rules:
+
+- if the stored artifact comes from one clear original file, use that original relative path
+- if the stored artifact comes from multiple originals or has no single real source file, use a stable logical artifact path for what is being stored
+- never use the temporary ingest file path under `./.doc-assistant/` as `--source` unless there is truly no better identity available
+- leave `--source` empty rather than reusing the temporary ingest file path
 
 Run ingest with:
 
 ```bash
-cvstore INPUT.txt DB.sqlite
+cvstore --doc=DOC --kind=source|derived [--source=RELATIVEPATH] INPUT.txt DB.sqlite
 ```
 
 ## Produce Query Input
 
-When constrained retrieval is needed, write a query file with an optional leading `<search ...>` header, then a blank line, then the semantic query text.
+Always construct one raw semantic query string for `cvquery`.
 
 Example:
 
 ```text
-<search doc="ml-unit-3-notes" kind=derived position=12 label="regularization">
-
 Why does dropout reduce overfitting?
 ```
 
-Query filter behavior:
+Query filter behavior is expressed on the `cvquery` command line:
 
 - `doc` is exact match
 - `kind` is exact match
@@ -245,18 +267,28 @@ Do not infer filters when the cue is ambiguous.
 - Do not convert topic wording alone into a filter unless the user explicitly asks to constrain the search.
 - If confidence is low, leave the text as a plain semantic query instead of guessing.
 
-If the user does not explicitly request filtering, write only the semantic query text.
+If the user does not explicitly request filtering, pass only the raw semantic query string and no filter flags.
 
 In `search` mode:
 
-- write the query input to an agent-managed file under `./.doc-assistant/`
 - always use the internal database at `./.doc-assistant/chunkvec.sqlite`
+- pass one raw `QUERY` positional argument to `cvquery`
+- pass query filters through `cvquery` flags only when constrained retrieval is needed
 - run `cvquery` against that database path
 
 Use only the filters the user actually needs.
 
+When interpreting `cvquery` results:
+
+- do not mechanically echo the top `k` results
+- use the retrieved chunks to judge which results actually answer the user's question
+- prefer chunks that directly mention the requested case, person, event, or concept over broader nearby topic summaries
+- when both `kind=source` and `kind=derived` appear, prefer `source` for factual description and `derived` for concise explanation
+- preserve useful metadata in the answer, especially `doc`, `kind`, `position`, and `label`
+- do not surface internal `.doc-assistant/...` paths as citations unless the user explicitly asks for raw tool output
+
 Run search with:
 
 ```bash
-cvquery QUERY.txt DB.sqlite
+cvquery [--doc=DOC] [--kind=source|derived] [--position=N] [--label=TEXT] QUERY DB.sqlite
 ```

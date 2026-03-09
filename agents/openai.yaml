@@ -1,4 +1,4 @@
 interface:
   display_name: "Doc Assistant"
   short_description: "Store and search chunkvec documents with stable doc ids"
-  default_prompt: "Use $doc-assistant in store or search mode, keep the internal database hidden, generate stable typed-suffix doc ids, and apply cvquery filters only when the user explicitly asks to narrow scope."
+  default_prompt: "Use $doc-assistant in store or search mode, keep the internal database hidden, pass stable typed-suffix doc ids and kind globally on cvstore, write sparse chunk markers with pos and optional label, and run cvquery with a raw query string plus explicit filter flags only when the user asks to narrow scope."
