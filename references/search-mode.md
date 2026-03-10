@@ -74,5 +74,8 @@ If the user does not explicitly request filtering, pass only the raw semantic qu
 
 ## Interpreting Results
 
+- Do not mechanically echo the top `k` results.
+- Use the retrieved chunks to judge which results actually answer the user's question.
+- Prefer chunks that directly answer the query over nearby but broader topic matches.
 - Do not frame the answer as commentary about the material. Present content directly.
 - If the retrieved chunks do not support a reliable answer, say so instead of inventing one.
