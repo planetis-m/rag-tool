@@ -1,6 +1,6 @@
-# Doc Assistant Skill
+# RAG Tool Skill
 
-`doc-assistant` is an installable Agent Skill for preparing semantically coherent
+`rag-tool` is an installable Agent Skill for preparing semantically coherent
 `chunkvec` ingest and query workflows.
 
 ## Features
@@ -29,19 +29,12 @@ first-class exact query filters in the current CLI.
 ## Installation
 
 ### Using Codex
-Codex recommends installing non-built-in skills using the `$skill-installer`.
-Prompt Codex with:
-
-```text
-$skill-installer install the skill from repo planetis-m/doc-assistant with path .
-```
+Install the published `rag-tool` skill with `$skill-installer`, using the repo
+and path where this renamed skill is hosted.
 
 ### Manual Install
-Clone directly into your agent's scanned skills path:
-
-```bash
-git clone https://github.com/planetis-m/doc-assistant.git ~/.agents/skills/doc-assistant
-```
+Copy or clone this skill directory into your agent's scanned skills path as
+`~/.agents/skills/rag-tool`.
 
 ## Modes
 
@@ -49,28 +42,28 @@ git clone https://github.com/planetis-m/doc-assistant.git ~/.agents/skills/doc-a
 Use `store` when the user wants to add material to the search database.
 
 ```text
-Use $doc-assistant in store mode on notes.md.
+Use $rag-tool in store mode on notes.md.
 ```
 
 ```text
-Use $doc-assistant to store chapter1.md.
+Use $rag-tool to store chapter1.md.
 ```
 
 ```text
-Use $doc-assistant to store derived notes for chapter1.md.
+Use $rag-tool to store derived notes for chapter1.md.
 ```
 
 ### Search
 Use `search` when the user wants to retrieve from the stored material.
 
 ```text
-Use $doc-assistant in search mode for: how do embeddings help search?
+Use $rag-tool in search mode for: how do embeddings help search?
 ```
 
 ```text
-Use $doc-assistant in search mode and search only in my chapter1 notes for regularization.
+Use $rag-tool in search mode and search only in my chapter1 notes for regularization.
 ```
 
 ```text
-Use $doc-assistant in search mode and search within the chapter1 source for vector search.
+Use $rag-tool in search mode and search within the chapter1 source for vector search.
 ```

@@ -79,8 +79,7 @@ If the user does not explicitly request filtering, pass only the raw semantic qu
 - Rerank the remaining chunks so the most directly relevant ones appear first.
 - Output the exact text of these filtered and reranked chunks verbatim.
 - Do not summarize, synthesize, rephrase, or interpret the retrieved chunks.
-- Output the exact text of the retrieved chunks verbatim.
-- Simply remove the `<chunk ...>` metadata markers and print the raw text.
+- Output the exact text of the retrieved chunks verbatim, without raw metadata.
 - Do not add any introductory framing, commentary, or transitional phrases (e.g., do not say "Here are the results...", "The material says...", or "Based on the text...").
 - Do not offer unsolicited follow-up searches or list alternative queries.
 - If no results match, simply say so directly.

@@ -43,7 +43,7 @@ Change the label when the dominant topic changes.
 ## Example: explicit filtered search
 
 ```text
-Use $doc-assistant in search mode and search only in my chapter1 notes for regularization.
+Use $rag-tool in search mode and search only in my chapter1 notes for regularization.
 ```
 
 Expected behavior:
@@ -54,7 +54,7 @@ Expected behavior:
 ## Example: ambiguous cue stays semantic
 
 ```text
-Use $doc-assistant in search mode for what page 12 says about dropout.
+Use $rag-tool in search mode for what page 12 says about dropout.
 ```
 
 Expected behavior:

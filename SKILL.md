@@ -1,9 +1,9 @@
 ---
-name: doc-assistant
-description: Prepare text or markdown documents for semantic storage and retrieval, including chunking, labeling, storing, refreshing, and searching document collections. Use when a task involves adding notes, transcripts, or source documents to a reusable document store, or searching previously stored material with optional metadata filters.
+name: rag-tool
+description: Prepare text or markdown documents for semantic storage and retrieval, including chunking, labeling, storing, refreshing, and searching document collections. Use when a task involves adding notes, transcripts, or source documents to a reusable retrieval store, or searching previously stored material with optional metadata filters.
 ---
 
-# Doc Assistant
+# RAG Tool
 
 Follow this workflow exactly to prepare document content for storage and retrieval.
 
@@ -13,7 +13,7 @@ Do not add verification steps unless the user explicitly asks for them.
 
 Use this fixed internal workspace-local database:
 
-- `./.doc-assistant/docs.db`
+- `./.rag-tool/docs.db`
 
 This path is fixed. Do not vary it during normal skill use.
 

@@ -1,4 +1,4 @@
 interface:
-  display_name: "Doc Assistant"
-  short_description: "Store and search chunkvec documents with stable doc ids"
-  default_prompt: "Use $doc-assistant in store or search mode, keep internal paths hidden, pass stable doc ids and kind globally on cvstore, treat source as provenance rather than a query filter, write sparse chunk markers with optional page and label metadata, and run cvquery with a raw query string plus explicit filter flags only when the user asks to narrow scope."
+  display_name: "RAG Tool"
+  short_description: "Store and search chunkvec documents for retrieval"
+  default_prompt: "Use $rag-tool to ingest or search text with chunkvec. In store mode, prepare semantically coherent `<chunk ...>` input with only optional page and label metadata, then run cvstore against the internal database with stable `--doc`, required `--kind`, and optional `--source`. In search mode, run cvquery on the internal database with one raw semantic query string and add filter flags only when the user explicitly asks to narrow scope."
