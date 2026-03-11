@@ -24,7 +24,8 @@ Always preprocess the text yourself before running `cvstore` or `cvquery`.
 - Read plain text or markdown directly.
 - For PDFs or other binary documents, use a text transcription, not the binary file itself.
 - Do not use custom scripts or programmatic pipelines to generate cleaned input text.
-- Read the source directly and rewrite it manually only when needed to remove decorative boilerplate, repeated navigation text, or formatting noise that would hurt retrieval quality.
+- Do not invent content that is not present in the source.
+- Rewrite only when needed to remove decorative boilerplate, repeated navigation text, or formatting noise that would hurt retrieval quality.
 - Preserve the source meaning. Do not add new facts.
 
 ## Tool Readiness
